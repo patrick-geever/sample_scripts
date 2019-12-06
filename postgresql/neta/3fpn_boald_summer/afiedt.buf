@@ -1,0 +1,13 @@
+select
+ bm_unit_id  || ',' ||
+ fpn_date || ',' ||
+ sett_period || ',' ||
+ np || ',' ||
+ from_time_gmt || ',' ||
+ from_level || ',' ||
+  to_time_gmt || ',' ||
+ to_level
+-- || ',' ||  time_stamp
+from neta.fpn_interm_cur
+order byfpn_date     ,sett_period,np
+/

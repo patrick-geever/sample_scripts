@@ -1,0 +1,33 @@
+
+
+Good example which also includes FK 
+In: metricsqa
+
+Table: metrics.hvdf_msg_pv
+Trigger: metrics.tr_hvdf_msg_pv
+Trigger Function: metrics.indexed_partition_multiplexer_hvdf_msg_pv_by_week()
+Partiton sub-table creation function: metrics.need_indexed_partition_table_hvdf_msg_pv(...)
+
+
+Another example is in gasaprod (which was the original use of this here):
+Table: maintenance.capacity_transaction_by_date
+
+
+
+So create the need_indexed_partition_table_X function, metrics.need_indexed_partition_table_hvdf_msg_pv(...) in this example.
+
+These functions have been customized somewhat to add things like FK or Symmetric triggers or whatever we might need in a particular case. The idea is a generic function that can be used for any table really. 
+
+This function uses the date in the partitioning column to determine if the required sub-partition table exists already. If so it returns to the calling trigger function which inserts in the the correct sub-partition. If not, it will create the needed sub-partition with the proper name and with the correct partitioning check constraint based on the parameters passed in. It is only good for time, week or month. It will also create indexes on the sub-partition table based on the indexes on the top level table.
+
+
+Create the indexed_partition_multiplexer_X trigger function, metrics.indexed_partition_multiplexer_hvdf_msg_pv_by_week() in this example.
+This function calls the need_indexed_partition_table_X function with required parameters which does all the real work of creating sub-partitions as well as the actual row insert.
+
+
+Create the table and the BEFORE INSERT trigger which calls the indexed_partition_multiplexer_X trigger function.
+
+That is it really. The first row inserted will cause a sub-partition table to be created and the row will go in there.
+
+
+
